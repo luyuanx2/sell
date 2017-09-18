@@ -14,12 +14,15 @@ import com.lyy.exception.SellException;
 import com.lyy.service.OrderService;
 import com.lyy.service.ProductService;
 import com.lyy.utils.KeyUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -30,6 +33,7 @@ import java.util.stream.Collectors;
  */
 @Service
 @Transactional
+@Slf4j
 public class OrderServiceIml implements OrderService {
 
     @Autowired
@@ -86,10 +90,17 @@ public class OrderServiceIml implements OrderService {
 
     @Override
     public OrderDTO findOne(String orderId) {
-        OrderDTO orderDTO = new OrderDTO();
+
         OrderMaster orderMaster = orderMasterDao.findOne(orderId);
-        BeanUtils.copyProperties(orderMaster,orderDTO);
+        if(orderMaster == null){
+            throw new SellException(ResultCode.ORDER_NOT_EXIST);
+        }
         List<OrderDetail> orderDetails = orderDetailDao.findByOrderId(orderId);
+        if(CollectionUtils.isEmpty(orderDetails)){
+            throw new SellException(ResultCode.ORDERDETAIL_NOT_EXIST);
+        }
+        OrderDTO orderDTO = new OrderDTO();
+        BeanUtils.copyProperties(orderMaster,orderDTO);
         orderDTO.setOrderDetailList(orderDetails);
         return orderDTO;
     }
@@ -99,14 +110,14 @@ public class OrderServiceIml implements OrderService {
 
         Page<OrderMaster> page = orderMasterDao.findByBuyerOpenid(buyerOpenid, pageable);
         List<OrderDTO> orderDTOs = page.getContent().stream().map(x -> {
-                    List<OrderDetail> orderDetails = orderDetailDao.findByOrderId(x.getOrderId());
                     OrderDTO orderDTO = new OrderDTO();
                     BeanUtils.copyProperties(x, orderDTO);
-                    orderDTO.setOrderDetailList(orderDetails);
                     return orderDTO;
                 }
         ).collect(Collectors.toList());
-        return null;
+
+        Page<OrderDTO> page1 = new PageImpl<>(orderDTOs,pageable,page.getTotalElements());
+        return page1;
     }
 
     /**
@@ -115,10 +126,35 @@ public class OrderServiceIml implements OrderService {
      * @return
      */
     @Override
+    @Transactional
     public OrderDTO cancel(OrderDTO orderDTO) {
-        OrderMaster orderMaster = getOrderMaster(orderDTO);
+        OrderMaster orderMaster = new OrderMaster();
+        BeanUtils.copyProperties(orderDTO,orderMaster);
+
+        if(!orderDTO.getOrderStatus().equals(OrderStatus.NEW.getCode())){
+            log.error("【取消订单】订单状态不正确,orderId={}, orderStatus={}",orderDTO.getOrderId(),orderDTO.getOrderStatus());
+        }
+        //OrderMaster orderMaster = getOrderMaster(orderDTO);
         orderMaster.setOrderStatus(OrderStatus.CANCEL.getCode());
-        orderMasterDao.save(orderMaster);
+        OrderMaster updateResult = orderMasterDao.save(orderMaster);
+        if(updateResult == null){
+            log.error("【取消订单】更新失败,orderMaster={}",orderMaster);
+            throw new SellException(ResultCode.ORDER_UPDATE_FAIL);
+        }
+
+        //返还库存
+        if(CollectionUtils.isEmpty(orderDTO.getOrderDetailList())){
+            log.error("【取消订单】订单中无商品详情,orderDTO={}",orderDTO);
+        }
+
+        List<CartDTO> collect = orderDTO.getOrderDetailList().stream()
+                .map(x -> new CartDTO(x.getProductId(), x.getProductQuantity())).collect(Collectors.toList());
+        productService.increaseStock(collect);
+
+        //已经支付，需要退款
+        if(orderDTO.getPayStatus().equals(PayStatus.SUCCESS)){
+            //todo
+        }
         return orderDTO;
     }
 
