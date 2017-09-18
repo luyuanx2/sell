@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
  * Created by 鲁源源 on 2017/9/17.
  */
 @Service
+@Transactional
 public class OrderServiceIml implements OrderService {
 
     @Autowired
@@ -41,7 +42,6 @@ public class OrderServiceIml implements OrderService {
     private OrderMasterDao orderMasterDao;
 
     @Override
-    @Transactional
     public OrderDTO create(OrderDTO orderDTO) {
 
         String orderId = KeyUtil.genUniqueKey();
@@ -86,26 +86,72 @@ public class OrderServiceIml implements OrderService {
 
     @Override
     public OrderDTO findOne(String orderId) {
-        return null;
+        OrderDTO orderDTO = new OrderDTO();
+        OrderMaster orderMaster = orderMasterDao.findOne(orderId);
+        BeanUtils.copyProperties(orderMaster,orderDTO);
+        List<OrderDetail> orderDetails = orderDetailDao.findByOrderId(orderId);
+        orderDTO.setOrderDetailList(orderDetails);
+        return orderDTO;
     }
 
     @Override
     public Page<OrderDTO> findList(String buyerOpenid, Pageable pageable) {
+
+        Page<OrderMaster> page = orderMasterDao.findByBuyerOpenid(buyerOpenid, pageable);
+        List<OrderDTO> orderDTOs = page.getContent().stream().map(x -> {
+                    List<OrderDetail> orderDetails = orderDetailDao.findByOrderId(x.getOrderId());
+                    OrderDTO orderDTO = new OrderDTO();
+                    BeanUtils.copyProperties(x, orderDTO);
+                    orderDTO.setOrderDetailList(orderDetails);
+                    return orderDTO;
+                }
+        ).collect(Collectors.toList());
         return null;
     }
 
+    /**
+     * 取消订单
+     * @param orderDTO
+     * @return
+     */
     @Override
     public OrderDTO cancel(OrderDTO orderDTO) {
-        return null;
+        OrderMaster orderMaster = getOrderMaster(orderDTO);
+        orderMaster.setOrderStatus(OrderStatus.CANCEL.getCode());
+        orderMasterDao.save(orderMaster);
+        return orderDTO;
     }
 
+    /**
+     * 订单完成
+     * @param orderDTO
+     * @return
+     */
     @Override
     public OrderDTO finish(OrderDTO orderDTO) {
-        return null;
+        OrderMaster orderMaster = getOrderMaster(orderDTO);
+        orderMaster.setOrderStatus(OrderStatus.FINISHED.getCode());
+        orderMasterDao.save(orderMaster);
+        return orderDTO;
     }
 
+
+    /**
+     * 订单支付
+     * @param orderDTO
+     * @return
+     */
     @Override
     public OrderDTO paid(OrderDTO orderDTO) {
         return null;
+    }
+
+    private OrderMaster getOrderMaster(OrderDTO orderDTO) {
+        OrderMaster orderMaster = orderMasterDao.findOne(orderDTO.getOrderId());
+        if(orderMaster == null){
+            //订单不存在
+            throw new SellException(ResultCode.ORDER_NOT_EXIST);
+        }
+        return orderMaster;
     }
 }

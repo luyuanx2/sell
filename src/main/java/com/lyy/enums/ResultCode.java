@@ -10,6 +10,7 @@ public enum ResultCode {
 
     PRODUCT_NOT_EXIST(10,"商品不存在"),
     PRODUCT_STOCK_ERROR(11,"商品库存不足"),
+    ORDER_NOT_EXIST(12,"订单不存在"),
     ;
     private Integer code;
 

@@ -47,6 +47,7 @@ public class ProductServiceImpl implements ProductService {
      * @param cartDTOList
      */
     @Override
+    @Transactional
     public void increaseStock(List<CartDTO> cartDTOList) {
         for(CartDTO cartDTO : cartDTOList){
             ProductInfo productInfo = productInfoDao.findOne(cartDTO.getProductId());
@@ -83,7 +84,6 @@ public class ProductServiceImpl implements ProductService {
             }
 
             productInfo.setProductStock(result);
-
             productInfoDao.save(productInfo);
         }
     }
