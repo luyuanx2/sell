@@ -129,13 +129,14 @@ public class OrderServiceIml implements OrderService {
     @Transactional
     public OrderDTO cancel(OrderDTO orderDTO) {
         OrderMaster orderMaster = new OrderMaster();
-        BeanUtils.copyProperties(orderDTO,orderMaster);
 
         if(!orderDTO.getOrderStatus().equals(OrderStatus.NEW.getCode())){
             log.error("【取消订单】订单状态不正确,orderId={}, orderStatus={}",orderDTO.getOrderId(),orderDTO.getOrderStatus());
         }
         //OrderMaster orderMaster = getOrderMaster(orderDTO);
-        orderMaster.setOrderStatus(OrderStatus.CANCEL.getCode());
+        orderDTO.setOrderStatus(OrderStatus.CANCEL.getCode());
+
+        BeanUtils.copyProperties(orderDTO,orderMaster);
         OrderMaster updateResult = orderMasterDao.save(orderMaster);
         if(updateResult == null){
             log.error("【取消订单】更新失败,orderMaster={}",orderMaster);
