@@ -40,8 +40,8 @@ public class CategoryServiceImplTest {
     @Test
     public void save() throws Exception {
         ProductCategory productCategory = new ProductCategory();
-        productCategory.setCategoryName("男生专享");
-        productCategory.setCategoryType(10);
+        productCategory.setCategoryName("女生专享");
+        productCategory.setCategoryType(11);
         ProductCategory category = categoryService.save(productCategory);
         Assert.assertNotNull(category);
     }

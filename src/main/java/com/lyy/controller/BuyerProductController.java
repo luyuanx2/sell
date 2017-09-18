@@ -37,7 +37,7 @@ public class BuyerProductController {
 
         List<ProductInfo> productInfos = productService.findUpAll(ProductStatus.UP.getCode());
         List<Integer> categoryTypeList  = productInfos.stream()
-                .map(x -> x.getCategoryType()).collect(Collectors.toList());
+                .map(ProductInfo::getCategoryType).collect(Collectors.toList());
         List<ProductCategory> categories = categoryService.findByCategoryTypeIn(categoryTypeList);
 
         List<ProductVo> productVoList = new ArrayList<>();
@@ -52,7 +52,6 @@ public class BuyerProductController {
                     BeanUtils.copyProperties(productInfo,productInfoVo);
                     productInfoVoList.add(productInfoVo);
                 }
-
             }
             productVo.setProductInfoVoList(productInfoVoList);
             productVoList.add(productVo);

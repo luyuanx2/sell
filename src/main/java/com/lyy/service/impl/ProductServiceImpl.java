@@ -42,11 +42,32 @@ public class ProductServiceImpl implements ProductService {
         return productInfoDao.save(productInfo);
     }
 
+    /**
+     * 增加库存
+     * @param cartDTOList
+     */
     @Override
     public void increaseStock(List<CartDTO> cartDTOList) {
+        for(CartDTO cartDTO : cartDTOList){
+            ProductInfo productInfo = productInfoDao.findOne(cartDTO.getProductId());
+            if (productInfo == null){
+                throw new SellException(ResultCode.PRODUCT_NOT_EXIST);
+            }
 
+            int result = productInfo.getProductStock() + cartDTO.getProductQuantity();
+            //添加后库存不能小于0
+            if(result < 0){
+                throw new SellException(ResultCode.PRODUCT_STOCK_ERROR);
+            }
+            productInfo.setProductStock(result);
+            productInfoDao.save(productInfo);
+        }
     }
 
+    /**
+     * 减少库存
+     * @param cartDTOList
+     */
     @Override
     @Transactional
     public void decreaseStock(List<CartDTO> cartDTOList) {
