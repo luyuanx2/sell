@@ -1,6 +1,8 @@
 package com.lyy.dto;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.lyy.domain.OrderDetail;
+import com.lyy.utils.serializer.Date2LongSerializer;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -11,6 +13,8 @@ import java.util.List;
  * Created by 鲁源源 on 2017/9/17.
  */
 @Data
+//@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
+//@JsonInclude(JsonInclude.Include.NON_NULL)
 public class OrderDTO {
 
     private String orderId;
@@ -31,8 +35,9 @@ public class OrderDTO {
     //支付状态
     private Integer payStatus;
 
+    @JsonSerialize(using = Date2LongSerializer.class)
     private Date createTime;
-
+    @JsonSerialize(using = Date2LongSerializer.class)
     private Date updateTime;
 
     private List<OrderDetail> orderDetailList;

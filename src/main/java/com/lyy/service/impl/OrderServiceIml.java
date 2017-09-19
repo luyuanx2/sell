@@ -73,8 +73,9 @@ public class OrderServiceIml implements OrderService {
         
         //订单主表入库
         OrderMaster orderMaster = new OrderMaster();
+        orderDTO.setOrderId(orderId);
         BeanUtils.copyProperties(orderDTO,orderMaster);
-        orderMaster.setOrderId(orderId);
+        //orderMaster.setOrderId(orderId);
         orderMaster.setOrderAmount(orderAmount);
         orderMaster.setPayStatus(PayStatus.WAIT.getCode());
         orderMaster.setOrderStatus(OrderStatus.NEW.getCode());
@@ -126,7 +127,6 @@ public class OrderServiceIml implements OrderService {
      * @return
      */
     @Override
-    @Transactional
     public OrderDTO cancel(OrderDTO orderDTO) {
         OrderMaster orderMaster = new OrderMaster();
 

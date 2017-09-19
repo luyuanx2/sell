@@ -7,7 +7,7 @@ import com.lyy.vo.ResultVo;
  */
 public class ResultVOUtil {
 
-    public static ResultVo<Object> success(Object o){
+    public static ResultVo success(Object o){
         ResultVo<Object> resultVo = new ResultVo<>();
         resultVo.setData(o);
         resultVo.setCode(0);
