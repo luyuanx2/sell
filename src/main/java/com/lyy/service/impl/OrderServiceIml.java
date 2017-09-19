@@ -132,6 +132,7 @@ public class OrderServiceIml implements OrderService {
 
         if(!orderDTO.getOrderStatus().equals(OrderStatus.NEW.getCode())){
             log.error("【取消订单】订单状态不正确,orderId={}, orderStatus={}",orderDTO.getOrderId(),orderDTO.getOrderStatus());
+            throw new SellException(ResultCode.ORDER_STATUS_ERROR);
         }
         //OrderMaster orderMaster = getOrderMaster(orderDTO);
         orderDTO.setOrderStatus(OrderStatus.CANCEL.getCode());
@@ -166,9 +167,20 @@ public class OrderServiceIml implements OrderService {
      */
     @Override
     public OrderDTO finish(OrderDTO orderDTO) {
-        OrderMaster orderMaster = getOrderMaster(orderDTO);
-        orderMaster.setOrderStatus(OrderStatus.FINISHED.getCode());
-        orderMasterDao.save(orderMaster);
+
+        if(!orderDTO.getOrderStatus().equals(OrderStatus.NEW.getCode())){
+            log.error("【完成订单】订单状态不正确,orderId={}, orderStatus={}",orderDTO.getOrderId(),orderDTO.getOrderStatus());
+            throw new SellException(ResultCode.ORDER_STATUS_ERROR);
+        }
+        
+        orderDTO.setOrderStatus(OrderStatus.FINISHED.getCode());
+        OrderMaster orderMaster = new OrderMaster();
+        BeanUtils.copyProperties(orderDTO,orderMaster);
+        OrderMaster update = orderMasterDao.save(orderMaster);
+        if(update == null){
+            log.error("【完成订单】更新失败,orderMaster={}",orderMaster);
+            throw new SellException(ResultCode.ORDER_UPDATE_FAIL);
+        }
         return orderDTO;
     }
 
@@ -180,15 +192,34 @@ public class OrderServiceIml implements OrderService {
      */
     @Override
     public OrderDTO paid(OrderDTO orderDTO) {
-        return null;
+        //只有是新订单才能完成支付
+        if(!orderDTO.getOrderStatus().equals(OrderStatus.NEW.getCode())){
+            log.error("【订单支付】订单状态不正确,orderId={}, orderStatus={}",orderDTO.getOrderId(),orderDTO.getOrderStatus());
+            throw new SellException(ResultCode.ORDER_STATUS_ERROR);
+        }
+
+        //只有是未支付的的订单才能支付
+        if(!orderDTO.getPayStatus().equals(PayStatus.WAIT.getCode())){
+            log.error("【订单支付】订单支付状态不正确,orderId={},payStatus={}",orderDTO.getOrderId(),orderDTO.getPayStatus());
+            throw new SellException(ResultCode.ORDER_PAY_ERROR);
+        }
+        orderDTO.setPayStatus(PayStatus.SUCCESS.getCode());
+        OrderMaster orderMaster = new OrderMaster();
+        BeanUtils.copyProperties(orderDTO,orderMaster);
+        OrderMaster update = orderMasterDao.save(orderMaster);
+        if(update == null){
+            log.error("【支付订单】更新失败,orderMaster={}",orderMaster);
+            throw new SellException(ResultCode.ORDER_UPDATE_FAIL);
+        }
+        return orderDTO;
     }
 
-    private OrderMaster getOrderMaster(OrderDTO orderDTO) {
-        OrderMaster orderMaster = orderMasterDao.findOne(orderDTO.getOrderId());
-        if(orderMaster == null){
-            //订单不存在
-            throw new SellException(ResultCode.ORDER_NOT_EXIST);
-        }
-        return orderMaster;
-    }
+//    private OrderMaster getOrderMaster(OrderDTO orderDTO) {
+//        OrderMaster orderMaster = orderMasterDao.findOne(orderDTO.getOrderId());
+//        if(orderMaster == null){
+//            //订单不存在
+//            throw new SellException(ResultCode.ORDER_NOT_EXIST);
+//        }
+//        return orderMaster;
+//    }
 }
