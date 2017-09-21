@@ -5,6 +5,7 @@ import com.lyy.dto.OrderDTO;
 import com.lyy.enums.ResultCode;
 import com.lyy.exception.SellException;
 import com.lyy.form.OrderForm;
+import com.lyy.service.BuyerService;
 import com.lyy.service.OrderService;
 import com.lyy.utils.ResultVOUtil;
 import com.lyy.vo.ResultVo;
@@ -36,6 +37,9 @@ public class BuyerOrderController {
 
     @Autowired
     private OrderService orderService;
+
+    @Autowired
+    private BuyerService buyerService;
 
     @PostMapping("create")
     public ResultVo<Map<String,String>> create(@Valid OrderForm orderForm,
@@ -96,7 +100,7 @@ public class BuyerOrderController {
             throw new SellException(ResultCode.PARAM_ERROR);
         }
 
-        OrderDTO orderDTO = orderService.findOne(orderId);
+        OrderDTO orderDTO = buyerService.findOrderOne(openid,orderId);
 
         return ResultVOUtil.success(orderDTO);
     }
@@ -114,6 +118,7 @@ public class BuyerOrderController {
             throw new SellException(ResultCode.PARAM_ERROR);
         }
         //todo 取消流程
+        OrderDTO orderDTO = buyerService.cancelOrder(openid, orderId);
         return ResultVOUtil.success();
     }
 }
