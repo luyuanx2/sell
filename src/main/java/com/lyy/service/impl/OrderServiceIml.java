@@ -12,6 +12,7 @@ import com.lyy.enums.PayStatus;
 import com.lyy.enums.ResultCode;
 import com.lyy.exception.SellException;
 import com.lyy.service.OrderService;
+import com.lyy.service.PayService;
 import com.lyy.service.ProductService;
 import com.lyy.utils.KeyUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -44,6 +45,9 @@ public class OrderServiceIml implements OrderService {
 
     @Autowired
     private OrderMasterDao orderMasterDao;
+
+    @Autowired
+    private PayService payService;
 
     @Override
     public OrderDTO create(OrderDTO orderDTO) {
@@ -155,7 +159,7 @@ public class OrderServiceIml implements OrderService {
 
         //已经支付，需要退款
         if(orderDTO.getPayStatus().equals(PayStatus.SUCCESS)){
-            //todo
+            payService.refund(orderDTO);
         }
         return orderDTO;
     }
