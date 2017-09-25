@@ -13,7 +13,7 @@ import java.util.List;
  * Created by 鲁源源 on 2017/9/17.
  */
 @Data
-//@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
+@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 //@JsonInclude(JsonInclude.Include.NON_NULL)
 public class OrderDTO {
 
