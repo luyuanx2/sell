@@ -103,7 +103,7 @@ public class SellerController {
      * @param map
      * @return
      */
-    @GetMapping("/finish")
+    @GetMapping("finish")
     public ModelAndView finished(@RequestParam("orderId") String orderId,
                                  Map<String, Object> map) {
         try {
@@ -118,7 +118,7 @@ public class SellerController {
 
         map.put("msg", ResultCode.ORDER_FINISH_SUCCESS.getMessage());
         map.put("url", "/sell/seller/order/list");
-        return new ModelAndView("common/success");
+        return new ModelAndView("common/success",map);
     }
 
 }
