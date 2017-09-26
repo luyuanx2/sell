@@ -19,6 +19,7 @@ import java.util.List;
  * Created by 鲁源源 on 2017/9/14.
  */
 @Service
+@Transactional
 public class ProductServiceImpl implements ProductService {
     @Autowired
     private ProductInfoDao productInfoDao;
@@ -86,5 +87,38 @@ public class ProductServiceImpl implements ProductService {
             productInfo.setProductStock(result);
             productInfoDao.save(productInfo);
         }
+    }
+
+
+    @Override
+    public ProductInfo onSale(String orderId) {
+        ProductInfo productInfo = productInfoDao.findOne(orderId);
+        if(productInfo == null){
+            throw new SellException(ResultCode.PRODUCT_NOT_EXIST);
+        }
+
+        if(productInfo.getProductStatusEnum().equals(ProductStatus.UP)){
+            throw new SellException(ResultCode.PRODUCT_STATUS_ERROR);
+
+        }
+
+        productInfo.setProductStatus(ProductStatus.UP.getCode());
+        return productInfoDao.saveAndFlush(productInfo);
+    }
+
+    @Override
+    public ProductInfo offSale(String orderId) {
+        ProductInfo productInfo = productInfoDao.findOne(orderId);
+        if(productInfo == null){
+            throw new SellException(ResultCode.PRODUCT_NOT_EXIST);
+        }
+
+        if(productInfo.getProductStatusEnum().equals(ProductStatus.DOWN)){
+            throw new SellException(ResultCode.PRODUCT_STATUS_ERROR);
+
+        }
+
+        productInfo.setProductStatus(ProductStatus.DOWN.getCode());
+        return productInfoDao.saveAndFlush(productInfo);
     }
 }
