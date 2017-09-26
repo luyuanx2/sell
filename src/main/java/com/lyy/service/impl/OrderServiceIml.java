@@ -20,6 +20,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -114,15 +115,27 @@ public class OrderServiceIml implements OrderService {
     public Page<OrderDTO> findList(String buyerOpenid, Pageable pageable) {
 
         Page<OrderMaster> page = orderMasterDao.findByBuyerOpenid(buyerOpenid, pageable);
-        List<OrderDTO> orderDTOs = page.getContent().stream().map(x -> {
-                    OrderDTO orderDTO = new OrderDTO();
-                    BeanUtils.copyProperties(x, orderDTO);
-                    return orderDTO;
-                }
-        ).collect(Collectors.toList());
+
+//        List<OrderDTO> orderDTOs = page.getContent().stream().map(x -> {
+//                    OrderDTO orderDTO = new OrderDTO();
+//                    BeanUtils.copyProperties(x, orderDTO);
+//                    return orderDTO;
+//                }
+//        ).collect(Collectors.toList());
+
+        List<OrderDTO> orderDTOs = assembleOrderDTO(page);
 
         Page<OrderDTO> page1 = new PageImpl<>(orderDTOs,pageable,page.getTotalElements());
         return page1;
+    }
+
+    private List<OrderDTO> assembleOrderDTO(Page page){
+        List<OrderDTO> orderDTOs = (List<OrderDTO>) page.getContent().stream().map(x -> {
+            OrderDTO orderDTO = new OrderDTO();
+            BeanUtils.copyProperties(x, orderDTO);
+            return orderDTO;
+        }).collect(Collectors.toList());
+        return orderDTOs;
     }
 
     /**
@@ -216,6 +229,15 @@ public class OrderServiceIml implements OrderService {
             throw new SellException(ResultCode.ORDER_UPDATE_FAIL);
         }
         return orderDTO;
+    }
+
+    @Override
+    public Page<OrderDTO> findList(Pageable pageable) {
+        Page<OrderMaster> page = orderMasterDao.findAll(pageable);
+        List<OrderDTO> orderDTOS = assembleOrderDTO(page);
+        Page<OrderDTO> page1 = new PageImpl<>(orderDTOS,pageable,page.getTotalElements());
+
+        return page1;
     }
 
 //    private OrderMaster getOrderMaster(OrderDTO orderDTO) {

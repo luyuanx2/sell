@@ -6,7 +6,7 @@ import lombok.Getter;
  * Created by 鲁源源 on 2017/9/17.
  */
 @Getter
-public enum OrderStatus {
+public enum OrderStatus implements CodeEnum {
 
     NEW(0,"新订单"),
     FINISHED(1,"完结"),

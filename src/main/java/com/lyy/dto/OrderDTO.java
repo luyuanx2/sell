@@ -1,7 +1,11 @@
 package com.lyy.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.lyy.domain.OrderDetail;
+import com.lyy.enums.OrderStatus;
+import com.lyy.enums.PayStatus;
+import com.lyy.utils.EnumUtil;
 import com.lyy.utils.serializer.Date2LongSerializer;
 import lombok.Data;
 
@@ -41,4 +45,14 @@ public class OrderDTO {
     private Date updateTime;
 
     private List<OrderDetail> orderDetailList;
+
+    @JsonIgnore
+    public OrderStatus getOrderStatusEnum(){
+        return EnumUtil.getByCode(orderStatus, OrderStatus.class);
+    }
+
+    @JsonIgnore
+    public PayStatus getPayStatusEnum(){
+        return EnumUtil.getByCode(payStatus,PayStatus.class);
+    }
 }
