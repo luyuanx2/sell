@@ -5,6 +5,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 /**
+ * 微信账号相关配置
  * Created by luyuanyuan on 2017/9/25.
  */
 @Data
@@ -12,8 +13,17 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "wechat")
 public class WechatAccountConfig {
 
+    /**
+     * 公众平台
+     */
     private String mpAppId;
     private String mpAppSecret;
+
+    /**
+     * 开放平台
+     */
+    private String openAppId;
+    private String openAppSecret;
 
     /**
      * 商户号

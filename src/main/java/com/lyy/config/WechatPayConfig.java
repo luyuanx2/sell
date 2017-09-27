@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 /**
+ * 微信支付配置
  * Created by luyuanyuan on 2017/9/25.
  */
 @Component
