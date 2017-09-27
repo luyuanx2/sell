@@ -1,10 +1,12 @@
 package com.lyy.exception;
 
 import com.lyy.enums.ResultCode;
+import lombok.Getter;
 
 /**
  * Created by 鲁源源 on 2017/9/17.
  */
+@Getter
 public class SellException extends RuntimeException {
     private Integer code;
 

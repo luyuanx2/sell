@@ -1,10 +1,14 @@
 package com.lyy.handler;
 
 import com.lyy.config.ProjectUrlConfig;
+import com.lyy.exception.SellException;
 import com.lyy.exception.SellerAuthorizeException;
+import com.lyy.utils.ResultVOUtil;
+import com.lyy.vo.ResultVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 /**
@@ -26,5 +30,11 @@ public class SellExceptionHandler {
                 .concat("?returnUrl=")
                 .concat(projectUrlConfig.getSell())
                 .concat("/sell/seller/login"));
+    }
+
+    @ExceptionHandler(value = SellException.class)
+    @ResponseBody
+    public ResultVo handlerSellException(SellException e){
+        return ResultVOUtil.error(e.getCode(),e.getMessage());
     }
 }

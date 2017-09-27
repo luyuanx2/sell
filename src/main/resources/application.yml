@@ -8,6 +8,9 @@ spring:
     show-sql: true
   jackson:
     default-property-inclusion: non_null
+  redis:
+    host: 192.168.30.113
+    port: 6379
 server:
   context-path: /sell
 
@@ -21,6 +24,8 @@ wechat:
   mchKey:  refw34455643563rt
   keyPath: /var/weixin_cert/h5.p12
   notifyUrl: http://sell.natapp.cc/sell/pay/notify
+  templateId:
+      orderStatus: e-Cqq67QxD6YNI41iRiqawEYdFavW_7pc7LyEMb-yeQ
 
 projectUrl:
   wechatMpAuthorize: http://sell.natapp4.cc

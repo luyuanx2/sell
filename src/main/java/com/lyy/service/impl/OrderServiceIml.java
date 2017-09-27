@@ -11,16 +11,13 @@ import com.lyy.enums.OrderStatus;
 import com.lyy.enums.PayStatus;
 import com.lyy.enums.ResultCode;
 import com.lyy.exception.SellException;
-import com.lyy.service.OrderService;
-import com.lyy.service.PayService;
-import com.lyy.service.ProductService;
+import com.lyy.service.*;
 import com.lyy.utils.KeyUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -49,6 +46,12 @@ public class OrderServiceIml implements OrderService {
 
     @Autowired
     private PayService payService;
+
+    @Autowired
+    private PushMessage pushMessage;
+
+    @Autowired
+    private WebSocket webSocket;
 
     @Override
     public OrderDTO create(OrderDTO orderDTO) {
@@ -91,6 +94,9 @@ public class OrderServiceIml implements OrderService {
                 .map(x -> new CartDTO(x.getProductId(), x.getProductQuantity()))
                 .collect(Collectors.toList());
         productService.decreaseStock(cartDTOList);
+
+        //发送websocket消息
+        webSocket.sendMessage(orderDTO.getOrderId());
         return orderDTO;
     }
 
@@ -198,6 +204,8 @@ public class OrderServiceIml implements OrderService {
             log.error("【完成订单】更新失败,orderMaster={}",orderMaster);
             throw new SellException(ResultCode.ORDER_UPDATE_FAIL);
         }
+        //推送微信模板消息
+        pushMessage.orderStatus(orderDTO);
         return orderDTO;
     }
 
