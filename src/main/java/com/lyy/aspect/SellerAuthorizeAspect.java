@@ -6,7 +6,6 @@ import com.lyy.exception.SellerAuthorizeException;
 import com.lyy.utils.CookieUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +21,7 @@ import javax.servlet.http.HttpServletRequest;
  * 登录身份验证切面
  * Created by luyuanyuan on 2017/9/27.
  */
-@Aspect
+//@Aspect
 @Component
 @Slf4j
 public class SellerAuthorizeAspect {

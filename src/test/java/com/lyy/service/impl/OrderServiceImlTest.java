@@ -24,7 +24,7 @@ public class OrderServiceImlTest extends BaseTest{
     public void create() throws Exception {
         //创建订单
         OrderDTO orderDto = new OrderDTO();
-        orderDto.setBuyerName("张三");
+        orderDto.setBuyerName("lyy");
         orderDto.setBuyerPhone("18868822111");
         orderDto.setBuyerAddress("慕课网总部");
         orderDto.setBuyerOpenid("ew3euwhd7sjw9diwkq");

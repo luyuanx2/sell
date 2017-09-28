@@ -14,9 +14,11 @@ import java.util.concurrent.CopyOnWriteArraySet;
  * Created by 鲁源源 on 2017/9/28.
  */
 @Component
-@ServerEndpoint("/webSocket/")
+@ServerEndpoint("/webSocket")
 @Slf4j
 public class WebSocket {
+
+    private static int onlineCount = 0;
 
     private Session session;
 
@@ -49,5 +51,17 @@ public class WebSocket {
                 e.printStackTrace();
             }
         }
+    }
+
+    public static synchronized  int getOnlineCount (){
+        return WebSocket.onlineCount;
+    }
+
+    public static synchronized void addOnlineCount (){
+        WebSocket.onlineCount++;
+    }
+
+    public static synchronized void subOnlineCount (){
+        WebSocket.onlineCount--;
     }
 }

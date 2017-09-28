@@ -11,7 +11,7 @@ public class KeyUtil {
     public static synchronized String genUniqueKey(){
         String s = RandomStringUtils.randomNumeric(6);
         long l = System.currentTimeMillis();
-        return s + l;
+        return l + s;
     }
 
 }
