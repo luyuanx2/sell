@@ -65,6 +65,8 @@ public class SellerProductController {
     @RequestMapping("/on_sale")
     public ModelAndView onSale(@RequestParam("productId") String productId,
                                Map<String, Object> map) {
+
+
         try {
             productService.onSale(productId);
         } catch (SellException e) {
